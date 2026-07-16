@@ -30,6 +30,7 @@ RUN apt-get update && \
     pkg-config \
     libssl-dev \
     xwayland \
+    bash-completion \
     libxkbcommon-dev libxkbcommon-x11-0 \
     libxi-dev \
  && rm -rf /var/lib/apt/lists/*
