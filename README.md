@@ -5,20 +5,20 @@ GitHub extension で、rust のビルド環境を構築します。
 
 ## 説明
 
-gh rust を使って、面倒な、環境構築を簡単にして、すぐに、rust プログラミング言語の学習ができます。
+gh cargo を使って、面倒な、環境構築を簡単にして、すぐに、rust プログラミング言語の学習ができます。
 
 ## インストール / アンインストール / アップグレード
 
 ```sh
-gh ext install kouji-sasaya/gh-rust
+gh ext install kouji-sasaya/gh-cargo
 ```
 
 ```sh
-gh ext remove kouji-sasaya/gh-rust
+gh ext remove kouji-sasaya/gh-cargo
 ```
 
 ```sh
-gh ext upgrade rust
+gh ext upgrade cargo
 ```
 
 ## セットアップ
@@ -46,22 +46,13 @@ gh rust setup
 
 ```sh
 mkdir my-rust && cd my-rust
-gh rust shell
+gh carog shell
 ```
 
-`gh rust shell` はホスト側のプロキシ環境変数をコンテナ内へ引き継ぎます。
+`gh cargo shell` はホスト側のプロキシ環境変数をコンテナ内へ引き継ぎます。
 
-### VS Code で docker コンテナに接続する
 
-```sh
-mkdir my-rust && cd my-rust
-gh rust code
-```
-
-`gh rust code` はコンテナを起動して VS Code をコンテナ接続で開きます。
-`gh-rust` コンテナが存在しない場合は起動し、存在する場合はそのまま再利用します。
-
-### Building
+### Building with cargo
 
 hello world作成
 
@@ -104,6 +95,15 @@ cargo run -q
 ```sh
 cargo fmt
 ```
+
+### Building with just
+
+just コマンドも入れています。cargo コマンドを、まとめることもできます。
+
+```
+just
+```
+
 
 # ライセンス
 
