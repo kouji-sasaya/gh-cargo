@@ -24,6 +24,8 @@ RUN apt-get update && \
     gosu \
     sudo \
     gh \
+    lsd \
+    bat \
     neovim \
     just \
     build-essential \
@@ -51,6 +53,10 @@ RUN chmod +x /usr/local/bin/oh-my-posh
 # Install Oh My Posh theme
 #RUN echo 'eval \"$(oh-my-posh init bash --config ~/.poshthemes/blueish.omp.json)\"' >> /home/ubuntu/.bashrc
 WORKDIR /workdir
+
+RUN ln -s /usr/bin/lsd /usr/local/bin/ls
+RUN ln -s /usr/bin/batcat /usr/local/bin/cat
+
 
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
