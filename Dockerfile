@@ -23,6 +23,7 @@ RUN apt-get update && \
     sudo \
     gh \
     neovim \
+    just \
     build-essential \
     pkg-config \
     libssl-dev \
