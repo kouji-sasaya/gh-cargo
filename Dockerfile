@@ -18,6 +18,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
+    wget \
+    unzip \
     git \
     gosu \
     sudo \
@@ -42,6 +44,11 @@ RUN cargo install --locked --root /usr/local cargo-audit --version 0.21.1
 RUN mkdir -p /etc/sudoers.d/
 RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu
 
+# Install Oh My Posh
+RUN wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/posh-linux-amd64 -O /usr/local/bin/oh-my-posh
+RUN chmod +x /usr/local/bin/oh-my-posh
+# Install Oh My Posh theme
+#RUN echo 'eval \"$(oh-my-posh init bash --config ~/.poshthemes/blueish.omp.json)\"' >> /home/ubuntu/.bashrc
 WORKDIR /workdir
 
 COPY ./entrypoint.sh /entrypoint.sh
@@ -50,3 +57,4 @@ RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
 CMD ["/bin/bash"]
+

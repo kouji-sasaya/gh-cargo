@@ -28,6 +28,7 @@ echo " cargo run -q                 # Run your rust package with secret"
 echo " cargo fmt                    # Fortmat your rust code"
 
 export CARGO_HOME=/home/ubuntu/.cargo
+
 cd /workdir
 if [ $# -gt 0 ]; then
     exec "$@"
