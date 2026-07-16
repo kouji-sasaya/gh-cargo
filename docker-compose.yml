@@ -1,6 +1,6 @@
 services:
-  gh-rust:
-    image: gh-rust
+  gh-cargo:
+    image: gh-cargo
     build:
       context: .
       network: host
