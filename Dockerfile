@@ -54,7 +54,7 @@ RUN chmod +x /usr/local/bin/oh-my-posh
 RUN mkdir -p /home/ubuntu/.poshthemes
 RUN wget https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/themes.zip -O /home/ubuntu/.poshthemes/themes.zip
 RUN unzip /home/ubuntu/.poshthemes/themes.zip -d /home/ubuntu/.poshthemes
-RUN echo 'eval \"$(oh-my-posh init bash --config ~/.poshthemes/blueish.omp.json)\"' >> /home/ubuntu/.bashrc
+RUN echo 'eval "$(oh-my-posh init bash --config ~/.poshthemes/blueish.omp.json)"' >> /home/ubuntu/.bashrc
 RUN rm -rf /home/ubuntu/.poshthemes/themes.zip
 WORKDIR /workdir
 
