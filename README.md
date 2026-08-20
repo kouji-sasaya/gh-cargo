@@ -1,4 +1,4 @@
-# gh-rust
+# gh-cargo
 
 
 GitHub extension で、rust のビルド環境を構築します。
@@ -25,13 +25,50 @@ gh ext upgrade cargo
 
 rust プログラミングの学習環境は、docker コンテナ内で、作業できます。
 
-setup すると、docker ビルドします。
+引数なしの `setup` は Docker イメージをビルドします。
 
-プロキシ環境では、ホスト側の `http_proxy` / `https_ppproxy` / `no_proxy` を設定しておくと、`gh rust setup` に自動で引き継がれます。
+Docker を使わず、ホストコンピュータへ Rust のビルド環境を直接セットアップすることもできます。
+
+プロキシ環境では、ホスト側の `http_proxy` / `https_proxy` / `no_proxy` を設定しておくと、Docker build に自動で引き継がれます。
 
 
 ```sh
-gh rust setup
+gh cargo setup
+```
+
+Docker のセットアップを明示する場合:
+
+```sh
+gh cargo setup --docker
+```
+
+ホスト側へセットアップする場合:
+
+```sh
+gh cargo setup --host
+```
+
+`--host` は、Rust stable、rustfmt、`cargo-audit`、`just` とビルドに必要な Debian/Ubuntu のパッケージをホストへインストールします。
+
+## クリーンアップ
+
+Docker イメージとホスト側の Rust ツールを両方削除します。`cleanup` のデフォルトは `--all` です。
+
+```sh
+gh cargo cleanup
+gh cargo cleanup --all
+```
+
+Docker イメージだけ削除する場合:
+
+```sh
+gh cargo cleanup --docker
+```
+
+ホスト側の Rust ツールと `just` を削除する場合:
+
+```sh
+gh cargo cleanup --host
 ```
 
 ## 学習
@@ -46,7 +83,7 @@ gh rust setup
 
 ```sh
 mkdir my-rust && cd my-rust
-gh carog shell
+gh cargo shell
 ```
 
 `gh cargo shell` はホスト側のプロキシ環境変数をコンテナ内へ引き継ぎます。

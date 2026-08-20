@@ -1,17 +1,69 @@
 #!/bin/sh
 set -e
 
-# Derive command names from the executable name (e.g. gh-rust -> gh rust).
+# Derive command names from the executable name (e.g. gh-cargo -> gh cargo).
 MYNAKE=$(basename "$0")
 GH_COMMAND=$(basename "${0}" | tr '-' ' ')
 TOP=$(dirname "${0}")
 COMMAND="${1}"
 CONTAINER_NAME="${MYNAKE}"
 
+usage() {
+  echo "Usage: ${GH_COMMAND} <command> [options]"
+  echo "  ${GH_COMMAND} setup [--docker|--host]"
+  echo "  ${GH_COMMAND} shell"
+  echo "  ${GH_COMMAND} cleanup [--docker|--host|--all]"
+}
+
+require_command() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    echo "Error: '$1' is required." >&2
+    exit 1
+  fi
+}
+
+run_as_root() {
+  if [ "$(id -u)" -eq 0 ]; then
+    "$@"
+  else
+    require_command sudo
+    sudo "$@"
+  fi
+}
+
+setup_host() {
+  require_command apt-get
+  run_as_root apt-get update
+  run_as_root apt-get install -y --no-install-recommends \
+    build-essential curl git pkg-config libssl-dev just
+
+  if ! command -v rustup >/dev/null 2>&1; then
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path --default-toolchain stable
+  fi
+
+  export PATH="${HOME}/.cargo/bin:${PATH}"
+  rustup toolchain install stable
+  rustup default stable
+  rustup component add rustfmt
+  cargo install --locked cargo-audit --version 0.21.1
+}
+
+cleanup_host() {
+  if command -v rustup >/dev/null 2>&1; then
+    rustup self uninstall -y
+  fi
+  if command -v apt-get >/dev/null 2>&1; then
+    run_as_root apt-get remove -y just
+  fi
+}
+
+cleanup_docker() {
+  require_command docker
+  docker image rm "${MYNAKE}" || echo "Docker image '${MYNAKE}' was not found or is still in use." >&2
+}
+
 if [ $# -eq 0 ];then
-  echo "Usage: ${GH_COMMAND} [command]"
-  echo " ${GH_COMMAND} setup     # Build the Docker image"
-  echo " ${GH_COMMAND} shell     # Start a Rust shell in the Docker container"
+  usage
   exit
 fi
 
@@ -19,8 +71,45 @@ export HOST_UID="$(id -u)"
 export HOST_GID="$(id -g)"
 
 if [ "${COMMAND}" = "setup" ]; then
-  # Build/update the image used by shell/code commands.
-  docker compose -f "${TOP}/docker-compose.yml" build
+  TARGET="docker"
+  shift
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --docker) TARGET="docker" ;;
+      --host) TARGET="host" ;;
+      *) echo "Unknown setup option: $1" >&2; usage >&2; exit 2 ;;
+    esac
+    shift
+  done
+
+  if [ "${TARGET}" = "docker" ]; then
+    require_command docker
+    docker compose -f "${TOP}/docker-compose.yml" build
+  else
+    setup_host
+  fi
+  exit 0
+fi
+
+if [ "${COMMAND}" = "cleanup" ]; then
+  TARGET="all"
+  shift
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --docker) TARGET="docker" ;;
+      --host) TARGET="host" ;;
+      --all) TARGET="all" ;;
+      *) echo "Unknown cleanup option: $1" >&2; usage >&2; exit 2 ;;
+    esac
+    shift
+  done
+
+  if [ "${TARGET}" = "docker" ] || [ "${TARGET}" = "all" ]; then
+    cleanup_docker
+  fi
+  if [ "${TARGET}" = "host" ] || [ "${TARGET}" = "all" ]; then
+    cleanup_host
+  fi
   exit 0
 fi
 
@@ -34,3 +123,7 @@ if [ "${COMMAND}" = "shell" ]; then
     --rm "${MYNAKE}" "$@"
   exit 0
 fi
+
+echo "Unknown command: ${COMMAND}" >&2
+usage >&2
+exit 2
