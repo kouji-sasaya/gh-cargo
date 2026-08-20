@@ -38,7 +38,9 @@ setup_host() {
     build-essential curl git pkg-config libssl-dev just
 
   if ! command -v rustup >/dev/null 2>&1; then
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path --default-toolchain stable
+    # Let rustup add ~/.cargo/bin to PATH via shell rc files so future
+    # shells (not just this script) can find cargo/rustup.
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
   fi
 
   export PATH="${HOME}/.cargo/bin:${PATH}"
